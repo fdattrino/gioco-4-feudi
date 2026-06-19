@@ -51,10 +51,111 @@ function FeudoCard(props) {
 
           
         
-
+             
         {props.isActive && (
-            <>
-              <div className="d-flex justify-content-center align-items-center gap-2 mb-2">
+  <>
+    {props.wide ? (
+      <>
+        <hr />
+
+        <Row className="align-items-end g-2 mb-2">
+          <Col md={2}>
+            <Form.Label className="small mb-1">👑 Cavalieri al re:</Form.Label>
+            <Form.Control
+              type="number"
+              min="0"
+              max={props.feudo.knights}
+              value={knightsToKing}
+              onChange={(e) => setKnightsToKing(Number(e.target.value))}
+              size="sm"
+            />
+          </Col>
+
+          <Col md={2}>
+            <Button
+              size="sm"
+              variant="outline-secondary"
+              className="w-100"
+              onClick={() => props.serveKing(props.feudo.id, knightsToKing)}
+            >
+              Invia
+            </Button>
+          </Col>
+
+          <Col md={3}>
+            <Button
+              size="sm"
+              variant="outline-success"
+              className="w-100"
+              onClick={() => props.produce(props.feudo.id)}
+            >
+              🌾 Produci
+            </Button>
+          </Col>
+
+          <Col md={3}>
+            <Button
+              size="sm"
+              variant="outline-danger"
+              className="w-100"
+              onClick={() => props.buildFortification(props.feudo.id)}
+            >
+              🏰 Fortifica
+            </Button>
+          </Col>
+
+          <Col md={2}>
+            <span className="small text-muted">📌 Imprevisto</span>
+          </Col>
+        </Row>
+        <p className="text-start mb-1 fw-bold">
+          ⚔ Attacca:
+        </p>
+        <Row className="align-items-center g-2">
+          <Col md={4}>
+            <div className="d-flex gap-1">
+              {enemies.map(other => (
+                <Button
+                  key={other.id}
+                  size="sm"
+                  variant="outline-dark"
+                  className="flex-fill"
+                  onClick={() => props.attackFeudo(props.feudo.id, other.id)}
+                >
+                  ⚔ {other.name}
+                </Button>
+              ))}
+            </div>
+          </Col>
+
+          <Col md={2}>
+            <Button
+              size="sm"
+              variant="outline-warning"
+              className="w-100"
+              onClick={() => props.payRansom(props.feudo.id)}
+            >
+              💰 Riscatto
+            </Button>
+          </Col>
+
+          <Col md={3}>
+            <Button
+              size="sm"
+              variant="outline-primary"
+              className="w-100"
+              onClick={() => props.recruitKnight(props.feudo.id)}
+            >
+              ⚔ Recluta Cavaliere
+            </Button>
+          </Col>
+        </Row>
+
+        <hr />
+      </>
+    ) : (
+      <>
+         <div className="d-flex justify-content-center align-items-center gap-2 mb-2">
                 <span>👑 Cavalieri al re:</span>
 
                 <Form.Control
@@ -132,10 +233,14 @@ function FeudoCard(props) {
                 </div>
 
               <hr />
+      </>
+    )}
+  </>
+)}
 
                 
-              </>
-        )}
+             
+        
       </Card.Body>
     </Card>
   );
