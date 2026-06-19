@@ -1,5 +1,7 @@
+import { Container, Row, Col, Card, Button, ButtonGroup } from 'react-bootstrap';
 import FeudoCard from './FeudoCard';
 import MapBoard from './MapBoard';
+
 function GameBoard(props) {
   const feudoA = props.feudi.find(f => f.name === 'Feudo A');
   const feudoB = props.feudi.find(f => f.name === 'Feudo B');
@@ -7,89 +9,110 @@ function GameBoard(props) {
   const feudoD = props.feudi.find(f => f.name === 'Feudo D');
 
   const renderFeudo = (feudo, wide = false) => {
-  if (!feudo) return null;
+    if (!feudo) return null;
+
+    return (
+      <FeudoCard
+        feudo={feudo}
+        wide={wide}
+        recruitKnight={props.recruitKnight}
+        buildFortification={props.buildFortification}
+        produce={props.produce}
+        allFeudi={props.feudi}
+        attackFeudo={props.attackFeudo}
+        isActive={feudo.id === props.game?.currentFeudoId}
+        nextTurn={props.nextTurn}
+        serveKing={props.serveKing}
+        payRansom={props.payRansom}
+      />
+    );
+  };
 
   return (
-    <FeudoCard
-      feudo={feudo}
-      wide={wide}
-      addGrain={props.addGrain}
-      recruitKnight={props.recruitKnight}
-      buildFortification={props.buildFortification}
-      produce={props.produce}
-      allFeudi={props.feudi}
-      attackFeudo={props.attackFeudo}
-      isActive={feudo.id === props.game?.currentFeudoId}
-      nextTurn={props.nextTurn}
-      serveKing={props.serveKing}
-      payRansom={props.payRansom}
-    />
+    <Container fluid className="mt-2">
+      <Row className="justify-content-center mb-3">
+        <Col xs={12} lg={10}>
+          {renderFeudo(feudoB, true)}
+        </Col>
+      </Row>
+
+      <Row className="justify-content-center align-items-start g-3">
+        <Col xs={12} md={3}>
+          {renderFeudo(feudoA)}
+        </Col>
+
+        <Col xs={12} md={5}>
+          <Card className="text-center border border-2 border-dark">
+            <Card.Body>
+              <Card.Title as="h2">Centro</Card.Title>
+
+              <p>📅 Round {props.game ? props.game.round : '...'}</p>
+              <p>🎲 Evento: {props.game?.lastEvent || 'Nessuno'}</p>
+              <pre style={{ whiteSpace: 'pre-wrap', textAlign: 'center' }}>
+                ⚔ {props.battleMessage || 'Nessuna battaglia'}
+              </pre>
+
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: '10px',
+                  marginBottom: '10px'
+                }}
+              >
+                <span>
+                  👤 Turno: {
+                    props.feudi.find(f => f.id === props.game?.currentFeudoId)?.name || '...'
+                  }
+                </span>
+
+                <Button
+                  size="sm"
+                  variant="success"
+                  onClick={props.nextTurn}
+                >
+                  ✅ Fine turno
+                </Button>
+              </div>
+
+              <ButtonGroup className="mb-2">
+                <Button size="sm" variant="outline-dark" onClick={props.drawEvent}>
+                  🎲 Pesca imprevisto
+                </Button>
+
+                <Button size="sm" variant="outline-dark" onClick={props.nextRound}>
+                  ➡ Fine Round
+                </Button>
+              </ButtonGroup>
+
+              <br />
+
+              <ButtonGroup className="mb-3">
+                <Button size="sm" variant="outline-secondary" onClick={props.resetGame}>
+                  🔄 Reset partita
+                </Button>
+
+               
+              </ButtonGroup>
+
+              <MapBoard feudi={props.feudi} />
+            </Card.Body>
+          </Card>
+        </Col>
+
+        <Col xs={12} md={3}>
+          {renderFeudo(feudoC)}
+        </Col>
+      </Row>
+
+      <Row className="justify-content-center mt-3">
+        <Col xs={12} lg={10}>
+          {renderFeudo(feudoD, true)}
+        </Col>
+      </Row>
+    </Container>
   );
-};
-
-  return (
-  <div
-    style={{
-      display: 'grid',
-      gridTemplateColumns: '280px 420px 280px',
-      gap: '20px',
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginTop: '10px'
-    }}
-  >
-    <div></div>
-
-    <div style={{ width: '900px', gridColumn: '1 / 4' }}>
-      {renderFeudo(feudoB, true)}
-    </div>
-
-    <div>{renderFeudo(feudoA)}</div>
-
-    <div
-      style={{
-        border: '2px dashed black',
-        padding: '15px',
-        textAlign: 'center',
-        minWidth: '380px'
-      }}
-    >
-      <h2>Centro</h2>
-
-      <p>📅 Round {props.game ? props.game.round : '...'}</p>
-      <p>🎲 Evento: {props.game?.lastEvent || 'Nessuno'}</p>
-      <p>⚔ {props.battleMessage || 'Nessuna battaglia'}</p>
-
-      <p>
-        👤 Turno: {
-          props.feudi.find(f => f.id === props.game?.currentFeudoId)?.name || '...'
-        }
-      </p>
-
-      <button onClick={props.drawEvent}>
-        🎲 Pesca imprevisto
-      </button>
-
-      <button onClick={props.nextRound}>
-        ➡ Fine Round
-      </button>
-
-      <br />
-
-      <button onClick={props.resetGame}>
-        🔄 Reset partita
-      </button>
-
-      <MapBoard feudi={props.feudi} />
-    </div>
-
-    <div>{renderFeudo(feudoC)}</div>
-
-    <div style={{ width: '900px', gridColumn: '1 / 4' }}>
-      {renderFeudo(feudoD, true)}
-    </div>
-  </div>
-);
 }
 
 export default GameBoard;

@@ -1,138 +1,143 @@
+import { useState } from 'react';
+import { Card, Row, Col, Button, ButtonGroup, Form } from 'react-bootstrap';
+
 function FeudoCard(props) {
+  const [knightsToKing, setKnightsToKing] = useState(0);
+
+  const enemies = props.allFeudi
+    .filter(other => other.id !== props.feudo.id)
+    .filter(other => {
+      if (props.feudo.name === 'Feudo A' && other.name === 'Feudo C') return false;
+      if (props.feudo.name === 'Feudo C' && other.name === 'Feudo A') return false;
+      if (props.feudo.name === 'Feudo B' && other.name === 'Feudo D') return false;
+      if (props.feudo.name === 'Feudo D' && other.name === 'Feudo B') return false;
+      return true;
+    });
+
   return (
-    <div
+    <Card
+      className={props.isActive ? 'border-success border-3' : 'border-dark'}
       style={{
-      border: props.isActive ? '3px solid green' : '1px solid black',
-      margin: '5px',
-      padding: '8px',
-      width: props.wide ? '900px' : '200px',
-      textAlign: 'center',
-      fontSize: '18px'
-    }}
+        width: props.wide ? '100%' : '220px',
+        fontSize: props.wide ? '16px' : '14px'
+      }}
     >
-    <h3>{props.feudo.name}</h3>
-      
+      <Card.Body>
+        <Card.Title className="text-center fs-4">
+          {props.feudo.name}
+        </Card.Title>
 
-      <div
-  style={{
-    display: props.wide ? 'grid' : 'block',
-    gridTemplateColumns: props.wide ? '1fr 1fr' : undefined,
-    gap: '20px',
-    textAlign: 'left'
-  }}
->
-  <div>
-    <p>🌾 Grano: {props.feudo.grain}</p>
-    <p>👨‍🌾 Contadini: {props.feudo.peasants}</p>
-    <p>⚔️ Cavalieri: {props.feudo.knights}</p>
-    <p>🏡 Mansi: {props.feudo.manors}</p>
-  </div>
 
-  <div>
-    <p>🌾 Mansi produttivi: {props.feudo.productiveManors}</p>
+        <Row className="mb-2">
+  <Col xs={props.wide ? 6 : 12}>
+    <p className="mb-1">🌾 Grano: {props.feudo.grain}</p>
+    <p className="mb-1">👨‍🌾 Contadini: {props.feudo.peasants}</p>
+    <p className="mb-1">⚔️ Cavalieri: {props.feudo.knights}</p>
+    <p className="mb-1">🏡 Mansi: {props.feudo.manors}</p>
+  </Col>
 
-    <p>
+  <Col xs={props.wide ? 6 : 12}>
+    <p className="mb-1">🌾 Mansi produttivi: {props.feudo.productiveManors}</p>
+    <p className="mb-1">
       {props.feudo.feudalType === 'ecclesiastico'
         ? '⛪ Ecclesiastico'
         : '🏰 Laico'}
     </p>
+    <p className="mb-1">🏰 Fortificazioni: {props.feudo.fortification}</p>
+  </Col>
+</Row>
 
-    <p>🏰 Fortificazioni: {props.feudo.fortification}</p>
-  </div>
-</div>
-      <div
-  style={{
-    display: props.wide ? 'grid' : 'block',
-    gridTemplateColumns: props.wide ? '1fr 1fr 1fr 1fr' : undefined,
-    gap: '10px',
-    marginTop: '10px'
-  }}
->
-  <button
-    disabled={!props.isActive}
-    onClick={() => props.addGrain(props.feudo.id)}
-  >
-    +100 Grano
-  </button>
+          
 
-  <button
-    disabled={!props.isActive}
-    onClick={() => props.recruitKnight(props.feudo.id)}
-  >
-    ⚔ Recluta Cavaliere
-  </button>
+          
+        
 
-  <button
-    disabled={!props.isActive}
-    onClick={() => props.buildFortification(props.feudo.id)}
-  >
-    🏰 Costruisci Fortificazione
-  </button>
+        {props.isActive && (
+            <>
+              <div className="d-flex justify-content-center align-items-center gap-2 mb-2">
+                <span>👑 Cavalieri al re:</span>
 
-  <button
-    disabled={!props.isActive}
-    onClick={() => props.produce(props.feudo.id)}
-  >
-    🌾 Produci Raccolto
-  </button>
-</div>
-      
+                <Form.Control
+                  type="number"
+                  min="0"
+                  max={props.feudo.knights}
+                  value={knightsToKing}
+                  onChange={(e) => setKnightsToKing(Number(e.target.value))}
+                  size="sm"
+                  style={{ width: '70px' }}
+                />
 
-      {props.isActive && (
-        <>
+                <Button
+                  size="sm"
+                  variant="outline-secondary"
+                  onClick={() => props.serveKing(props.feudo.id, knightsToKing)}
+                >
+                  Invia
+                </Button>
+              </div>
 
-        <hr />
+              <hr />
 
-          <button
-              onClick={() => props.serveKing(props.feudo.id)}
-            >
-              👑 Servigi al Re
-          </button>
-          <hr />
+                <div className="d-grid gap-2 mb-2">
+                  <Button
+                    size="sm"
+                    variant="outline-success"
+                    onClick={() => props.produce(props.feudo.id)}
+                  >
+                    🌾 Produci Raccolto
+                  </Button>
 
-          <p>Attacca:</p>
+                  <Button
+                    size="sm"
+                    variant="outline-danger"
+                    onClick={() => props.buildFortification(props.feudo.id)}
+                  >
+                    🏰 Costruisci Fortificazione
+                  </Button>
+                  <div className="text-muted small text-center my-2">
+                    📌 Pescare l’imprevisto.
+                  </div>
+                </div>
 
-          {props.allFeudi
-            .filter(other => other.id !== props.feudo.id)
-            .filter(other => {
-              if (props.feudo.name === 'Feudo A' && other.name === 'Feudo C') {
-                return false;
-              }
+                <p className="text-center mb-1">Attacca:</p>
 
-              if (props.feudo.name === 'Feudo C' && other.name === 'Feudo A') {
-                return false;
-              }
+                <ButtonGroup size="sm" className="mb-2 w-100">
+                  {enemies.map(other => (
+                    <Button
+                      key={other.id}
+                      variant="outline-dark"
+                      onClick={() => props.attackFeudo(props.feudo.id, other.id)}
+                    >
+                      ⚔ {other.name}
+                    </Button>
+                  ))}
+                </ButtonGroup>
 
-              if (props.feudo.name === 'Feudo B' && other.name === 'Feudo D') {
-                return false;
-              }
+                <div className="d-grid gap-2 mb-2">
+                  <Button
+                    size="sm"
+                    variant="outline-warning"
+                    onClick={() => props.payRansom(props.feudo.id)}
+                  >
+                    💰 Paga riscatto
+                  </Button>
 
-              if (props.feudo.name === 'Feudo D' && other.name === 'Feudo B') {
-                return false;
-              }
+                  <Button
+                    size="sm"
+                    variant="outline-primary"
+                    onClick={() => props.recruitKnight(props.feudo.id)}
+                  >
+                    ⚔ Recluta Cavaliere
+                  </Button>
+                </div>
 
-              return true;
-            })
-            .map(other => (
-              <button
-                key={other.id}
-                onClick={() => props.attackFeudo(props.feudo.id, other.id)}
-              >
-                ⚔ {other.name}
-              </button>
-            ))}
-          <button onClick={() => props.payRansom(props.feudo.id)}>
-            💰 Paga riscatto
-          </button>
+              <hr />
 
-          <hr />
-
-          <button onClick={props.nextTurn}>
-            ✅ Fine turno
-          </button>
-        </>
-      )}
-    </div>
+                
+              </>
+        )}
+      </Card.Body>
+    </Card>
   );
 }
 

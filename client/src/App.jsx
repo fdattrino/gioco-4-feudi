@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import FeudoCard from './components/FeudoCard';
 import GameBoard from './components/GameBoard';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 
 
@@ -139,23 +141,19 @@ const nextTurn = () => {
     .then(() => loadGame());
 };
 
-const serveKing = (id) => {
-
-  fetch(
-    `http://localhost:3001/api/feudi/${id}/serve-king`,
-    {
-      method: 'POST'
-    }
-  )
+const serveKing = (id, knightsSent) => {
+  fetch(`http://localhost:3001/api/feudi/${id}/serve-king`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ knightsSent })
+  })
     .then(response => response.json())
     .then(data => {
-
       setBattleMessage(data.message);
-
       loadFeudi();
-
     });
-
 };
 
 const drawEvent = () => {

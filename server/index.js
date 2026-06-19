@@ -596,6 +596,7 @@ app.post('/api/feudi/:id/produce', (req, res) => {
 
 app.post('/api/feudi/:id/serve-king', (req, res) => {
   const id = req.params.id;
+  const knightsSent = Number(req.body.knightsSent || 0);
 
   db.get(
     'SELECT * FROM feudi WHERE id = ?',
@@ -608,58 +609,84 @@ app.post('/api/feudi/:id/serve-king', (req, res) => {
       const minKnights = Math.ceil(feudo.peasants / 20);
       const availableKnights = feudo.knights - minKnights;
 
-      if (availableKnights < 1) {
+      if (knightsSent < 1) {
         return res.json({
           success: false,
-          message: `Non puoi inviare cavalieri al re. Devi lasciare almeno ${minKnights} cavalieri a difesa.`
+          message: '👑 Servigi al Re\nNon hai inviato cavalieri.'
         });
       }
 
-      const dice = Math.floor(Math.random() * 6) + 1;
-      console.log('Dado servigi al re:', dice);
-
-      if (dice % 2 === 0) {
-        db.run(
-          `
-          UPDATE feudi
-          SET grain = grain + 100,
-              peasants = peasants + 5,
-              manors = manors + 1,
-              productiveManors = productiveManors + 1
-          WHERE id = ?
-          `,
-          [id],
-          (err) => {
-            if (err) {
-              return res.status(500).json(err);
-            }
-
-            res.json({
-              success: true,
-              message: `Dado ${dice}: il re ricompensa il feudo.`
-            });
-          }
-        );
-      } else {
-        db.run(
-          `
-          UPDATE feudi
-          SET knights = knights - 1
-          WHERE id = ?
-          `,
-          [id],
-          (err) => {
-            if (err) {
-              return res.status(500).json(err);
-            }
-
-            res.json({
-              success: true,
-              message: `Dado ${dice}: il cavaliere è andato perduto.`
-            });
-          }
-        );
+      if (knightsSent > availableKnights) {
+        return res.json({
+          success: false,
+          message: `👑 Servigi al Re\nPuoi inviare al massimo ${availableKnights} cavalieri. Devi lasciarne ${minKnights} a difesa.`
+        });
       }
+
+      const diceResults = [];
+        let successes = 0;
+        let losses = 0;
+
+        for (let i = 1; i <= knightsSent; i++) {
+          const dice = Math.floor(Math.random() * 6) + 1;
+
+          if (dice % 2 === 0) {
+            successes++;
+
+            diceResults.push(
+              `Cavaliere ${i}: dado ${dice} → successo`
+            );
+          } else {
+            losses++;
+
+            diceResults.push(
+              `Cavaliere ${i}: dado ${dice} → perduto`
+            );
+          }
+        }
+      const grainGain = successes * 100;
+      const peasantsGain = successes * 5;
+      const manorsGain = successes;
+      const knightsLost = losses;
+
+      db.run(
+        `
+        UPDATE feudi
+        SET grain = grain + ?,
+            peasants = peasants + ?,
+            manors = manors + ?,
+            productiveManors = productiveManors + ?,
+            knights = MAX(0, knights - ?)
+        WHERE id = ?
+        `,
+        [
+          grainGain,
+          peasantsGain,
+          manorsGain,
+          manorsGain,
+          knightsLost,
+          id
+        ],
+        (err) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+
+          res.json({
+            success: true,
+            message:
+              `👑 Servigi al Re\n` +
+              `Cavalieri inviati: ${knightsSent}\n\n` +
+              diceResults.join('\n') +
+              `\n\nSuccessi: ${successes}\n` +
+              `Perdite: ${losses}\n\n` +
+              `+${grainGain} grano\n` +
+              `+${peasantsGain} contadini\n` +
+              `+${manorsGain} mansi\n` +
+              `-${knightsLost} cavalieri`
+          });
+        }
+      );
     }
   );
 });
