@@ -193,6 +193,34 @@ const saveGame = async () => {
   URL.revokeObjectURL(url);
 };
 
+const loadSavedGame = (event) => {
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    const save = JSON.parse(reader.result);
+
+    fetch('http://localhost:3001/api/load-game', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(save)
+    })
+      .then(response => response.json())
+      .then(data => {
+        setBattleMessage(data.message);
+        loadGame();
+        loadFeudi();
+      });
+  };
+
+  reader.readAsText(file);
+};
+
   return (
   <>
    <h1
@@ -220,6 +248,7 @@ const saveGame = async () => {
       drawEvent={drawEvent}
       payRansom={payRansom}
       saveGame={saveGame}
+      loadSavedGame={loadSavedGame}
     />
   </>
 );

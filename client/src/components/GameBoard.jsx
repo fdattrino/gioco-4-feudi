@@ -45,7 +45,15 @@ function GameBoard(props) {
           <Card className="text-center border border-2 border-dark">
             <Card.Body>
               <Card.Title as="h2">Centro</Card.Title>
-
+              <label className="btn btn-sm btn-outline-primary">
+                📂 Carica partita
+                <input
+                  type="file"
+                  accept=".json"
+                  hidden
+                  onChange={props.loadSavedGame}
+                />
+              </label>
               <p>📅 Round {props.game ? props.game.round : '...'}</p>
               <p>🎲 Evento: {props.game?.lastEvent || 'Nessuno'}</p>
               <pre style={{ whiteSpace: 'pre-wrap', textAlign: 'center' }}>

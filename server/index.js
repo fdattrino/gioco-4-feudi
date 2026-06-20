@@ -713,6 +713,79 @@ app.get('/api/save-game', (req, res) => {
   });
 });
 
+app.post('/api/load-game', (req, res) => {
+  const save = req.body;
+
+  if (!save.game || !save.feudi) {
+    return res.status(400).json({
+      message: 'File di salvataggio non valido.'
+    });
+  }
+
+  db.run(
+    `
+    UPDATE game
+    SET round = ?,
+        lastEvent = ?,
+        currentFeudoId = ?
+    WHERE id = 1
+    `,
+    [
+      save.game.round,
+      save.game.lastEvent,
+      save.game.currentFeudoId
+    ],
+    (err) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+
+      let completed = 0;
+
+      save.feudi.forEach((feudo) => {
+        db.run(
+          `
+          UPDATE feudi
+          SET grain = ?,
+              peasants = ?,
+              knights = ?,
+              fortification = ?,
+              manors = ?,
+              productiveManors = ?,
+              knightsSentToKing = ?,
+              feudalType = ?
+          WHERE id = ?
+          `,
+          [
+            feudo.grain,
+            feudo.peasants,
+            feudo.knights,
+            feudo.fortification,
+            feudo.manors,
+            feudo.productiveManors,
+            feudo.knightsSentToKing || 0,
+            feudo.feudalType,
+            feudo.id
+          ],
+          (err) => {
+            if (err) {
+              return res.status(500).json(err);
+            }
+
+            completed++;
+
+            if (completed === save.feudi.length) {
+              res.json({
+                message: 'Partita caricata correttamente.'
+              });
+            }
+          }
+        );
+      });
+    }
+  );
+});
+
 app.listen(PORT, () => {
   console.log(`Server avviato sulla porta ${PORT}`);
 });
