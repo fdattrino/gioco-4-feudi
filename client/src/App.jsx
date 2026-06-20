@@ -221,6 +221,30 @@ const loadSavedGame = (event) => {
   reader.readAsText(file);
 };
 
+const takeAttackGrain = () => {
+  fetch('http://localhost:3001/api/attack/reward/grain', {
+    method: 'POST'
+  })
+    .then(response => response.json())
+    .then(data => {
+      setBattleMessage(data.message);
+      loadGame();
+      loadFeudi();
+    });
+};
+
+const takeAttackManors = () => {
+  fetch('http://localhost:3001/api/attack/reward/manors', {
+    method: 'POST'
+  })
+    .then(response => response.json())
+    .then(data => {
+      setBattleMessage(data.message);
+      loadGame();
+      loadFeudi();
+    });
+};
+
   return (
   <>
    <h1
@@ -249,6 +273,8 @@ const loadSavedGame = (event) => {
       payRansom={payRansom}
       saveGame={saveGame}
       loadSavedGame={loadSavedGame}
+      takeAttackGrain={takeAttackGrain}
+      takeAttackManors={takeAttackManors}
     />
   </>
 );

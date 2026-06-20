@@ -24,6 +24,7 @@ function GameBoard(props) {
         nextTurn={props.nextTurn}
         serveKing={props.serveKing}
         payRansom={props.payRansom}
+        
       />
     );
   };
@@ -59,6 +60,25 @@ function GameBoard(props) {
               <pre style={{ whiteSpace: 'pre-wrap', textAlign: 'center' }}>
                 ⚔ {props.battleMessage || 'Nessuna battaglia'}
               </pre>
+              {props.game?.pendingAttackWinnerId && (
+              <div className="d-flex gap-2 justify-content-center mb-2">
+                <Button
+                  size="sm"
+                  variant="outline-success"
+                  onClick={props.takeAttackGrain}
+                >
+                  🌾 Prendi grano
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="outline-warning"
+                  onClick={props.takeAttackManors}
+                >
+                  🏡 Occupa mansi
+                </Button>
+              </div>
+)}
 
               <div
                 style={{

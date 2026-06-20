@@ -117,6 +117,26 @@ db.run(sql, [
     ADD COLUMN feudalType TEXT DEFAULT 'laico'
   `, () => {});
 
+  db.run(`
+  ALTER TABLE game
+  ADD COLUMN pendingAttackWinnerId INTEGER
+`, () => {});
+
+db.run(`
+  ALTER TABLE game
+  ADD COLUMN pendingAttackLoserId INTEGER
+`, () => {});
+
+db.run(`
+  ALTER TABLE game
+  ADD COLUMN pendingAttackGrainLoss INTEGER
+`, () => {});
+
+db.run(`
+  ALTER TABLE game
+  ADD COLUMN pendingAttackManorLoss INTEGER
+`, () => {});
+
   db.get('SELECT COUNT(*) AS total FROM game', [], (err, row) => {
     if (row.total === 0) {
       db.run(
