@@ -168,6 +168,31 @@ const drawEvent = () => {
     });
 };
 
+const saveGame = async () => {
+  const response = await fetch('http://localhost:3001/api/save-game');
+  const data = await response.json();
+
+  const fileName =
+    prompt('Nome della partita:', 'Partita1');
+
+  if (!fileName) return;
+
+  const blob = new Blob(
+    [JSON.stringify(data, null, 2)],
+    { type: 'application/json' }
+  );
+
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${fileName}.json`;
+
+  a.click();
+
+  URL.revokeObjectURL(url);
+};
+
   return (
   <>
    <h1
@@ -194,6 +219,7 @@ const drawEvent = () => {
       serveKing={serveKing}
       drawEvent={drawEvent}
       payRansom={payRansom}
+      saveGame={saveGame}
     />
   </>
 );

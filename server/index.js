@@ -693,6 +693,26 @@ app.post('/api/feudi/:id/serve-king', (req, res) => {
 
 const PORT = 3001;
 
+app.get('/api/save-game', (req, res) => {
+  db.get('SELECT * FROM game WHERE id = 1', [], (err, game) => {
+    if (err) {
+      return res.status(500).json(err);
+    }
+
+    db.all('SELECT * FROM feudi', [], (err, feudi) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+
+      res.json({
+        savedAt: new Date().toISOString(),
+        game,
+        feudi
+      });
+    });
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Server avviato sulla porta ${PORT}`);
 });

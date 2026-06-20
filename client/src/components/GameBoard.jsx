@@ -92,7 +92,13 @@ function GameBoard(props) {
                 <Button size="sm" variant="outline-secondary" onClick={props.resetGame}>
                   🔄 Reset partita
                 </Button>
-
+              <Button
+                size="sm"
+                variant="primary"
+                onClick={props.saveGame}
+              >
+                💾 Salva partita
+              </Button>
                
               </ButtonGroup>
 
