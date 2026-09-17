@@ -21,6 +21,7 @@ const attackFeudo = (attackerId, defenderId) => {
     .then(data => {
       setBattleMessage(data.message);
       loadFeudi();
+      loadGame();
     });
 };
 
@@ -249,9 +250,10 @@ const takeAttackManors = () => {
   <>
    <h1
   style={{
-    fontSize: '32px',
+    fontSize: '24px',
     textAlign: 'center',
-    margin: '5px 0 10px 0'
+    margin: '4px 0 4px 0',
+    color: '#08060d'
   }}
 >
   Gioco dei 4 Feudi

@@ -18,32 +18,32 @@ function FeudoCard(props) {
     <Card
       className={props.isActive ? 'border-success border-3' : 'border-dark'}
       style={{
-        width: props.wide ? '100%' : '220px',
-        fontSize: props.wide ? '16px' : '14px'
+        width: props.wide ? '100%' : '240px',
+        fontSize: props.wide ? '14px' : '11px'
       }}
     >
-      <Card.Body>
-        <Card.Title className="text-center fs-4">
+      <Card.Body className="p-2">
+        <Card.Title className="text-center fs-6 mb-1">
           {props.feudo.name}
         </Card.Title>
 
 
-        <Row className="mb-2">
-  <Col xs={props.wide ? 6 : 12}>
-    <p className="mb-1">🌾 Grano: {props.feudo.grain}</p>
-    <p className="mb-1">👨‍🌾 Contadini: {props.feudo.peasants}</p>
-    <p className="mb-1">⚔️ Cavalieri: {props.feudo.knights}</p>
-    <p className="mb-1">🏡 Mansi: {props.feudo.manors}</p>
+        <Row className="mb-1">
+  <Col xs={6}>
+    <p className="mb-0">🌾 Grano: {props.feudo.grain}</p>
+    <p className="mb-0">👨‍🌾 Contadini: {props.feudo.peasants}</p>
+    <p className="mb-0">⚔️ Cavalieri: {props.feudo.knights}</p>
+    <p className="mb-0">🏡 Mansi: {props.feudo.manors}</p>
   </Col>
 
-  <Col xs={props.wide ? 6 : 12}>
-    <p className="mb-1">🌾 Mansi produttivi: {props.feudo.productiveManors}</p>
-    <p className="mb-1">
+  <Col xs={6}>
+    <p className="mb-0">🌾 Mansi produttivi: {props.feudo.productiveManors}</p>
+    <p className="mb-0">
       {props.feudo.feudalType === 'ecclesiastico'
         ? '⛪ Ecclesiastico'
         : '🏰 Laico'}
     </p>
-    <p className="mb-1">🏰 Fortificazioni: {props.feudo.fortification}</p>
+    <p className="mb-0">🏰 Fortificazioni: {props.feudo.fortification}</p>
   </Col>
 </Row>
 

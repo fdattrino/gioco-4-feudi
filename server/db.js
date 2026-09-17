@@ -31,51 +31,30 @@ db.serialize(() => {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `;
 
-      db.run(sql, [
-  'Feudo A',
-  500,
-  50,
-  6,
-  0,
-  10,
-  10,
-  'laico'
-]);
+      const feudiIniziali = [
+        ['Feudo A', 500, 50, 6, 0, 10, 10, 'laico'],
+        ['Feudo B', 500, 50, 6, 0, 10, 10, 'ecclesiastico'],
+        ['Feudo C', 500, 50, 6, 0, 10, 10, 'laico'],
+        ['Feudo D', 500, 50, 6, 0, 10, 10, 'ecclesiastico']
+      ];
 
-db.run(sql, [
-  'Feudo B',
-  500,
-  50,
-  6,
-  0,
-  10,
-  10,
-  'ecclesiastico'
-]);
+      const inserisciFeudo = (index) => {
+        if (index >= feudiIniziali.length) {
+          console.log('Feudi iniziali creati');
+          return;
+        }
 
-db.run(sql, [
-  'Feudo C',
-  500,
-  50,
-  6,
-  0,
-  10,
-  10,
-  'laico'
-]);
+        db.run(sql, feudiIniziali[index], (err) => {
+          if (err) {
+            console.error('Errore inserimento feudo:', err.message);
+            return;
+          }
 
-db.run(sql, [
-  'Feudo D',
-  500,
-  50,
-  6,
-  0,
-  10,
-  10,
-  'ecclesiastico'
-]);
+          inserisciFeudo(index + 1);
+        });
+      };
 
-      console.log('Feudi iniziali creati');
+      inserisciFeudo(0);
     }
   });
 
@@ -136,6 +115,11 @@ db.run(`
   ALTER TABLE game
   ADD COLUMN pendingAttackManorLoss INTEGER
 `, () => {});
+
+  db.run(`
+    ALTER TABLE feudi
+    ADD COLUMN capturedKnights INTEGER DEFAULT 0
+  `, () => {});
 
   db.get('SELECT COUNT(*) AS total FROM game', [], (err, row) => {
     if (row.total === 0) {

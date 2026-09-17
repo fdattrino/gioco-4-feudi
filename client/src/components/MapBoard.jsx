@@ -9,17 +9,17 @@ function MapBoard({ feudi }) {
   };
 
   return (
-    <Card className="mt-3">
-      <Card.Body>
-        <Card.Title className="text-center">
+    <Card className="mt-1">
+      <Card.Body className="p-1">
+        <Card.Title className="text-center mb-1 fs-6">
           Mappa Mansi
         </Card.Title>
 
         {feudi.map(feudo => (
-          <div key={feudo.id} className="mb-1">
+          <div key={feudo.id} className="mb-0 small">
             <strong>{feudo.name}: </strong>
 
-            <span style={{ fontSize: '20px', letterSpacing: '2px' }}>
+            <span style={{ fontSize: '13px', letterSpacing: '0px' }}>
               {Array.from({ length: feudo.productiveManors }).map((_, index) => (
                 <span key={index}>
                   {colors[feudo.name]}

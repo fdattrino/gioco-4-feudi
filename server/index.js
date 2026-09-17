@@ -374,7 +374,8 @@ app.post('/api/feudi/:attackerId/attack/:defenderId', (req, res) => {
               db.run(
                 `
                 UPDATE feudi
-                SET knights = MAX(0, knights - 2)
+                SET knights = MAX(0, knights - 2),
+                    capturedKnights = capturedKnights + 2
                 WHERE id = ?
                 `,
                 [attackerId],
@@ -384,13 +385,30 @@ app.post('/api/feudi/:attackerId/attack/:defenderId', (req, res) => {
                     return res.status(500).json(err);
                   }
 
-                  res.json({
-                    result: 'defeat',
-                    attackerId,
-                    defenderId,
-                    message:
-                       `${attacker.name} è stato sconfitto. 2 cavalieri sono stati catturati da ${defender.name}.`
-                  });
+                  db.run(
+                    `
+                    UPDATE game
+                    SET pendingAttackWinnerId = NULL,
+                        pendingAttackLoserId = NULL,
+                        pendingAttackGrainLoss = NULL,
+                        pendingAttackManorLoss = NULL
+                    WHERE id = 1
+                    `,
+                    [],
+                    (err) => {
+                      if (err) {
+                        return res.status(500).json(err);
+                      }
+
+                      res.json({
+                        result: 'defeat',
+                        attackerId,
+                        defenderId,
+                        message:
+                           `${attacker.name} è stato sconfitto. 2 cavalieri sono stati catturati da ${defender.name}.`
+                      });
+                    }
+                  );
 
                 }
               );
@@ -495,35 +513,46 @@ app.post('/api/attack/reward/manors', (req, res) => {
 app.post('/api/feudi/:id/pay-ransom', (req, res) => {
   const id = req.params.id;
 
-  db.run(
-    `
-    UPDATE feudi
-    SET grain = grain - 300,
-        knights = knights + 2
-    WHERE id = ?
-      AND grain >= 300
-    `,
-    [id],
-    function (err) {
+  db.get('SELECT * FROM feudi WHERE id = ?', [id], (err, feudo) => {
+    if (err) {
+      return res.status(500).json(err);
+    }
 
-      if (err) {
-        return res.status(500).json(err);
-      }
+    if (feudo.capturedKnights < 2) {
+      return res.json({
+        success: false,
+        message: 'Non hai cavalieri catturati da liberare.'
+      });
+    }
 
-      if (this.changes === 0) {
-        return res.json({
-          success: false,
-          message: 'Grano insufficiente per pagare il riscatto.'
+    if (feudo.grain < 300) {
+      return res.json({
+        success: false,
+        message: 'Grano insufficiente per pagare il riscatto.'
+      });
+    }
+
+    db.run(
+      `
+      UPDATE feudi
+      SET grain = grain - 300,
+          knights = knights + 2,
+          capturedKnights = capturedKnights - 2
+      WHERE id = ?
+      `,
+      [id],
+      function (err) {
+        if (err) {
+          return res.status(500).json(err);
+        }
+
+        res.json({
+          success: true,
+          message: 'Riscatto pagato. I 2 cavalieri sono stati liberati.'
         });
       }
-
-      res.json({
-        success: true,
-        message: 'Riscatto pagato. I 2 cavalieri sono stati liberati.'
-      });
-
-    }
-  );
+    );
+  });
 });
 
 app.get('/api/feudi', (req, res) => {
@@ -705,7 +734,7 @@ app.post('/api/feudi/:id/serve-king', (req, res) => {
       if (knightsSent > availableKnights) {
         return res.json({
           success: false,
-          message: `👑 Servigi al Re\nPuoi inviare al massimo ${availableKnights} cavalieri. Devi lasciarne ${minKnights} a difesa.`
+          message: `👑 Servigi al Re\nPuoi inviare al massimo ${availableKnights} ${availableKnights === 1 ? 'cavaliere' : 'cavalieri'}. Devi lasciarne ${minKnights} a difesa.`
         });
       }
 

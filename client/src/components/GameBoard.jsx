@@ -30,22 +30,22 @@ function GameBoard(props) {
   };
 
   return (
-    <Container fluid className="mt-2">
-      <Row className="justify-content-center mb-3">
+    <Container fluid className="mt-0">
+      <Row className="justify-content-center mb-1">
         <Col xs={12} lg={10}>
           {renderFeudo(feudoB, true)}
         </Col>
       </Row>
 
-      <Row className="justify-content-center align-items-start g-3">
+      <Row className="justify-content-center align-items-start g-1">
         <Col xs={12} md={3}>
           {renderFeudo(feudoA)}
         </Col>
 
         <Col xs={12} md={5}>
           <Card className="text-center border border-2 border-dark">
-            <Card.Body>
-              <Card.Title as="h2">Centro</Card.Title>
+            <Card.Body className="p-2">
+              <Card.Title as="h2" className="fs-5 mb-1">Centro</Card.Title>
               <label className="btn btn-sm btn-outline-primary">
                 📂 Carica partita
                 <input
@@ -55,8 +55,8 @@ function GameBoard(props) {
                   onChange={props.loadSavedGame}
                 />
               </label>
-              <p>📅 Round {props.game ? props.game.round : '...'}</p>
-              <p>🎲 Evento: {props.game?.lastEvent || 'Nessuno'}</p>
+              <p className="mb-0 small">📅 Round {props.game ? props.game.round : '...'}</p>
+              <p className="mb-0 small">🎲 Evento: {props.game?.lastEvent || 'Nessuno'}</p>
               <pre style={{ whiteSpace: 'pre-wrap', textAlign: 'center' }}>
                 ⚔ {props.battleMessage || 'Nessuna battaglia'}
               </pre>
@@ -86,10 +86,10 @@ function GameBoard(props) {
                   justifyContent: 'center',
                   alignItems: 'center',
                   gap: '10px',
-                  marginBottom: '10px'
+                  marginBottom: '4px'
                 }}
               >
-                <span>
+                <span className="small">
                   👤 Turno: {
                     props.feudi.find(f => f.id === props.game?.currentFeudoId)?.name || '...'
                   }
@@ -104,7 +104,7 @@ function GameBoard(props) {
                 </Button>
               </div>
 
-              <ButtonGroup className="mb-2">
+              <ButtonGroup className="mb-1">
                 <Button size="sm" variant="outline-dark" onClick={props.drawEvent}>
                   🎲 Pesca imprevisto
                 </Button>
@@ -116,7 +116,7 @@ function GameBoard(props) {
 
               <br />
 
-              <ButtonGroup className="mb-3">
+              <ButtonGroup className="mb-1">
                 <Button size="sm" variant="outline-secondary" onClick={props.resetGame}>
                   🔄 Reset partita
                 </Button>
@@ -140,7 +140,7 @@ function GameBoard(props) {
         </Col>
       </Row>
 
-      <Row className="justify-content-center mt-3">
+      <Row className="justify-content-center mt-1">
         <Col xs={12} lg={10}>
           {renderFeudo(feudoD, true)}
         </Col>
@@ -150,3 +150,4 @@ function GameBoard(props) {
 }
 
 export default GameBoard;
+
