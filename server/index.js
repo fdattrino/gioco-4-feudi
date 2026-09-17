@@ -265,161 +265,130 @@ app.post('/api/feudi/:attackerId/attack/:defenderId', (req, res) => {
   const attackerId = req.params.attackerId;
   const defenderId = req.params.defenderId;
 
-  db.get(
-    'SELECT * FROM feudi WHERE id = ?',
-    [attackerId],
-    (err, attacker) => {
-
-      if (err) {
-        return res.status(500).json(err);
-      }
-
-      db.get(
-        'SELECT * FROM feudi WHERE id = ?',
-        [defenderId],
-        (err, defender) => {
-
-          if (err) {
-            return res.status(500).json(err);
-          }
-
-          const attackPower =
-            attacker.knights;
-
-          const defensePower =
-            defender.knights +
-            (defender.fortification * 2);
-
-          const objective =
-            Math.max(
-              1,
-              Math.min(
-                10,
-                5 + (attackPower - defensePower)
-              )
-            );
-
-          //const finalObjective =
-             //Math.max(1, Math.min(10, objective));
-
-          const dice =
-             Math.floor(Math.random() * 10) + 1;
-
-          console.log(
-            'Attacco:',
-            attackPower,
-            'Difesa:',
-            defensePower,
-            'Obiettivo:',
-            objective,
-            'Dado:',
-            dice
-          );
-
-          //if (attackPower > defensePower) {
-         if (dice <= objective) {
   db.get('SELECT * FROM game WHERE id = 1', [], (err, game) => {
     if (err) {
       return res.status(500).json(err);
     }
 
-    const effectiveFortification =
-      game.round >= 2
-        ? defender.fortification
-        : 0;
+    db.get('SELECT * FROM feudi WHERE id = ?', [attackerId], (err, attacker) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
 
-    const reduction =
-      Math.pow(2, effectiveFortification);
+      db.get('SELECT * FROM feudi WHERE id = ?', [defenderId], (err, defender) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
 
-    const grainLoss =
-      Math.ceil(300 / reduction);
+        const effectiveFortification =
+          game.round >= 2 ? defender.fortification : 0;
 
-    const manorLoss =
-      Math.ceil(4 / reduction);
+        const attackPower = attacker.knights;
 
-    db.run(
-  `
-  UPDATE game
-  SET pendingAttackWinnerId = ?,
-      pendingAttackLoserId = ?,
-      pendingAttackGrainLoss = ?,
-      pendingAttackManorLoss = ?
-  WHERE id = 1
-  `,
-  [attackerId, defenderId, grainLoss, manorLoss],
-  (err) => {
-    if (err) {
-      return res.status(500).json(err);
-    }
+        const defensePower =
+          defender.knights + (effectiveFortification * 2);
 
-    res.json({
-      result: 'victory',
-      message:
-        `⚔ ${attacker.name} attacca ${defender.name}\n` +
-        `Attacco: ${attackPower}\n` +
-        `Difesa: ${defensePower}\n` +
-        `Obiettivo: ${objective}\n` +
-        `Dado: ${dice}\n\n` +
-        `✅ Vittoria\n` +
-        `Fortificazioni efficaci: ${effectiveFortification}\n` +
-        `Riduzione perdite: /${reduction}\n\n` +
-        `Scegli la ricompensa:\n` +
-        `🌾 ${grainLoss} grano oppure 🏡 ${manorLoss} mansi.`
-    });
-  }
-);
-  });
-} else {
+        const objective = Math.max(
+          1,
+          Math.min(10, 5 + (attackPower - defensePower))
+        );
+
+        const dice = Math.floor(Math.random() * 10) + 1;
+
+        console.log(
+          'Attacco:', attackPower,
+          'Difesa:', defensePower,
+          'Obiettivo:', objective,
+          'Dado:', dice
+        );
+
+        if (dice <= objective) {
+          const reduction = Math.pow(2, effectiveFortification);
+          const grainLoss = Math.ceil(300 / reduction);
+          const manorLoss = Math.ceil(4 / reduction);
+
+          db.run(
+            `
+            UPDATE game
+            SET pendingAttackWinnerId = ?,
+                pendingAttackLoserId = ?,
+                pendingAttackGrainLoss = ?,
+                pendingAttackManorLoss = ?
+            WHERE id = 1
+            `,
+            [attackerId, defenderId, grainLoss, manorLoss],
+            (err) => {
+              if (err) {
+                return res.status(500).json(err);
+              }
+
+              res.json({
+                result: 'victory',
+                message:
+                  `⚔ ${attacker.name} attacca ${defender.name}\n` +
+                  `Attacco: ${attackPower}\n` +
+                  `Difesa: ${defensePower}\n` +
+                  `Obiettivo: ${objective}\n` +
+                  `Dado: ${dice}\n\n` +
+                  `✅ Vittoria\n` +
+                  `Fortificazioni efficaci: ${effectiveFortification}\n` +
+                  `Riduzione perdite: /${reduction}\n\n` +
+                  `Scegli la ricompensa:\n` +
+                  `🌾 ${grainLoss} grano oppure 🏡 ${manorLoss} mansi.`
+              });
+            }
+          );
+        } else {
+          db.run(
+            `
+            UPDATE feudi
+            SET knights = MAX(0, knights - 2),
+                capturedKnights = capturedKnights + 2
+            WHERE id = ?
+            `,
+            [attackerId],
+            (err) => {
+              if (err) {
+                return res.status(500).json(err);
+              }
 
               db.run(
                 `
-                UPDATE feudi
-                SET knights = MAX(0, knights - 2),
-                    capturedKnights = capturedKnights + 2
-                WHERE id = ?
+                UPDATE game
+                SET pendingAttackWinnerId = NULL,
+                    pendingAttackLoserId = NULL,
+                    pendingAttackGrainLoss = NULL,
+                    pendingAttackManorLoss = NULL
+                WHERE id = 1
                 `,
-                [attackerId],
+                [],
                 (err) => {
-
                   if (err) {
                     return res.status(500).json(err);
                   }
 
-                  db.run(
-                    `
-                    UPDATE game
-                    SET pendingAttackWinnerId = NULL,
-                        pendingAttackLoserId = NULL,
-                        pendingAttackGrainLoss = NULL,
-                        pendingAttackManorLoss = NULL
-                    WHERE id = 1
-                    `,
-                    [],
-                    (err) => {
-                      if (err) {
-                        return res.status(500).json(err);
-                      }
-
-                      res.json({
-                        result: 'defeat',
-                        attackerId,
-                        defenderId,
-                        message:
-                           `${attacker.name} è stato sconfitto. 2 cavalieri sono stati catturati da ${defender.name}.`
-                      });
-                    }
-                  );
-
+                                    res.json({
+                    result: 'defeat',
+                    attackerId,
+                    defenderId,
+                    message:
+                      `⚔ ${attacker.name} attacca ${defender.name}\n` +
+                      `Attacco: ${attackPower}\n` +
+                      `Difesa: ${defensePower}\n` +
+                      `Obiettivo: ${objective}\n` +
+                      `Dado: ${dice}\n\n` +
+                      `❌ Sconfitta\n` +
+                      `Fortificazioni efficaci: ${effectiveFortification}\n\n` +
+                      `${attacker.name} è stato sconfitto. 2 cavalieri sono stati catturati da ${defender.name}.`
+                  });
                 }
               );
-
             }
-
+          );
         }
-      );
-
-    }
-  );
+      });
+    });
+  });
 });
 
 app.post('/api/attack/reward/grain', (req, res) => {
