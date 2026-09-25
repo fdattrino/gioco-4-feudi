@@ -99,17 +99,29 @@ function GameBoard(props) {
                   size="sm"
                   variant="success"
                   onClick={props.nextTurn}
+                  disabled={!!props.game?.pendingAttackWinnerId}
                 >
                   ✅ Fine turno
                 </Button>
               </div>
+
+              {props.game?.pendingAttackWinnerId && (
+                <p className="small text-warning text-center mb-1">
+                  ⚠ Scegli prima la ricompensa dell'attacco per poter continuare
+                </p>
+              )}
 
               <ButtonGroup className="mb-1">
                 <Button size="sm" variant="outline-dark" onClick={props.drawEvent}>
                   🎲 Pesca imprevisto
                 </Button>
 
-                <Button size="sm" variant="outline-dark" onClick={props.nextRound}>
+                <Button
+                  size="sm"
+                  variant="outline-dark"
+                  onClick={props.nextRound}
+                  disabled={!!props.game?.pendingAttackWinnerId}
+                >
                   ➡ Fine Round
                 </Button>
               </ButtonGroup>
@@ -150,4 +162,5 @@ function GameBoard(props) {
 }
 
 export default GameBoard;
+
 
